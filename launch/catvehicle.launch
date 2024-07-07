@@ -34,7 +34,7 @@ This launch file loads the worlds and models for the catvehicle
  <group>
     <!-- see https://youtu.be/gr0t__EqQ_w?t=291 -->
     <include file="$(find-pkg-share gazebo_ros)/launch/gazebo.launch.py">
-        <arg name="verbose" value="true"/>
+        <arg name="verbose" value="false"/>
     </include>
  </group>
  

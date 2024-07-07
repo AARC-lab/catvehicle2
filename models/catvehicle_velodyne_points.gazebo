@@ -42,7 +42,7 @@ Sensors are included separately, based on the arguments passed to the xacro incl
 <gazebo reference="velodyne_link">
         <sensor type="ray" name="lidar_sensor">
               <pose>0 0 0 0 0 0</pose>
-                   <visualize>false</visualize>
+                   <visualize>true</visualize>
                     <update_rate>5</update_rate>
                        <ray>
                            <scan>
@@ -56,7 +56,6 @@ Sensors are included separately, based on the arguments passed to the xacro incl
           <samples>20</samples>
           <resolution>1</resolution>
           <min_angle>-0.034906585</min_angle>
-    <!--      <max_angle>0.432841654</max_angle> -->
           <max_angle>0.326</max_angle>
         </vertical>
                            </scan>
@@ -66,17 +65,18 @@ Sensors are included separately, based on the arguments passed to the xacro incl
                                  <resolution>0.02</resolution>
                            </range>
                       </ray>
- <!--                <plugin name="gazebo_ros_head_hokuyo_controller" filename="libgazebo_ros_laser.so">
-                   <topicName>/cat/laser/scan</topicName>
-                      <frameName>laser_link</frameName>  -->
-         <plugin name="laser_controller" filename="libgazebo_ros_block_laser.so">
+         <plugin name="laser_controller2" filename="libgazebo_ros_ray_sensor.so">
+          <ros>
+            <argument>~/out:=/$(arg roboname)/lidar_points</argument>
+          </ros>
+          <output_type>sensor_msgs/PointCloud2</output_type>
             <frameName>velodyne_link</frameName>
             <hokuyoMinIntensity>101</hokuyoMinIntensity>
             <robotNamespace>/$(arg roboname)</robotNamespace>
             <topicName>lidar_points</topicName>
             <gaussianNoise>0.02</gaussianNoise>
             <updateRate>5</updateRate>
-                 </plugin>
+         </plugin>
       </sensor>
 </gazebo>
 
