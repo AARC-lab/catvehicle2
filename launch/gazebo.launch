@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+
+<!--
+
+Author: Rahul Bhadani
+Copyright (c)
+All rights reserved.
+
+Permission is hereby granted, without written agreement and without 
+license or royalty fees, to use, copy, modify, and distribute this
+software and its documentation for any purpose, provided that the 
+above copyright notice and the following two paragraphs appear in 
+all copies of this software.
+
+
+Summary: 
+=======
+This launch file loads the worlds and models for the catvehicle
+
+
+-->
+
+<launch>
+
+<arg name="use_sim_time" default="True" />
+<arg name="robot" default="catvehicle"/>
+
+ 
+ <group>
+    <!-- see https://youtu.be/gr0t__EqQ_w?t=291 -->
+    <include file="$(find-pkg-share gazebo_ros)/launch/gazebo.launch.py">
+        <arg name="verbose" value="false"/>
+    </include>
+ </group>
+</launch>

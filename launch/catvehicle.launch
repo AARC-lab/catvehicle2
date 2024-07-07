@@ -1,0 +1,80 @@
+<?xml version="1.0" ?>
+
+<!--
+
+Author: Rahul Bhadani
+Copyright (c)
+All rights reserved.
+
+Permission is hereby granted, without written agreement and without 
+license or royalty fees, to use, copy, modify, and distribute this
+software and its documentation for any purpose, provided that the 
+above copyright notice and the following two paragraphs appear in 
+all copies of this software.
+
+
+Summary: 
+=======
+This launch file loads the worlds and models for the catvehicle
+
+
+-->
+
+<launch>
+
+<arg name="use_sim_time" default="True" />
+<arg name="robot" default="catvehicle"/>
+
+
+<let name="vehicle_path" value="$(find-pkg-share catvehicle2)/models/catvehicle.xacro"/>
+<let name="rviz_config_file" value="$(find-pkg-share catvehicle2)/config/catvehicle.rviz"/>
+<set_env name="GAZEBO_MODEL_PATH" value="$(find-pkg-prefix catvehicle2)/share/"  />
+
+ 
+ <group>
+    <!-- see https://youtu.be/gr0t__EqQ_w?t=291 -->
+    <include file="$(find-pkg-share gazebo_ros)/launch/gazebo.launch.py">
+        <arg name="verbose" value="true"/>
+    </include>
+ </group>
+ 
+
+ 
+    <group>
+        <!--push-ros-namespace namespace="$(var robot)"/-->
+        
+        <node name="urdf_spawner$(var robot)" pkg="gazebo_ros" exec="spawn_entity.py" respawn="false" output="screen" args="-topic robot_description -entity $(var robot) -x 0.0 -y 0.0 -z 0.0">
+         <param name="robot_description" value="$(command 'xacro  $(var vehicle_path) roboname:=$(var robot) updateRate:=50.0')" />
+        </node>
+
+
+<!--executable
+    cmd="/spawn_entity gazebo_msgs/srv/SpawnEntity gazebo_msgs/srv/SpawnEntity '{name: robot, xml: $(command xacro  $(var vehicle_path) roboname:=$(var robot))  , initial_pose: {position: {x: 4.0, y: 5.0, z: 6.0} }  }'" 
+    cwd="/home"
+    launch-prefix="ros2 service call"
+    output="screen">
+</executable-->
+
+        
+        <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui"/>
+    
+        <node name="robot_state_publisher" pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
+            <param name="use_sim_time" value="$(var use_sim_time)"/>
+            <param name="robot_description" value="$(command 'xacro  $(var vehicle_path) roboname:=$(var robot) updateRate:=50.0')"/>
+        </node>
+        
+        <node name="controller_spawner$(var robot)" pkg="controller_manager" exec="spawner" respawn="false" output="screen" 
+            args="joint1_velocity_controller joint2_velocity_controller front_left_steering_position_controller front_right_steering_position_controller  joint_state_controller -c /controller_manager"/>
+            
+       
+
+        <!-- set up a static TF transform for publishing SLAM localization estimates wrt base_link -->
+        <node pkg="tf2_ros" exec="static_transform_publisher" name="base_link2slamodom_tf_$(var robot)"  args="--x 0.0 --y 0.0 --z 0.0 --yaw 0.0 --pitch 0.0 --roll 1.0 --frame-id  base_link --child-frame-id  slamodom" />
+        <!-- establish this vehicle's place in the global frame for tf transforms -->
+        <node pkg="tf2_ros" exec="static_transform_publisher" name="global_frame_tf_$(var robot)" args="--x 0.0 --y 0.0 --z 0.0 --yaw 0.0 --pitch 0.0 --roll 1.0 --frame-id  /world --child-frame-id odom"/>
+    
+    </group>
+    
+    <node name="rviz2" pkg="rviz2" exec="rviz2" output="screen" args="-d $(var rviz_config_file)"/>
+
+</launch>
